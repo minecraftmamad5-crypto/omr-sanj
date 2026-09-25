@@ -34,8 +34,12 @@
     color:var(--ink);
     font-family:'Vazirmatn', sans-serif;
     -webkit-font-smoothing:antialiased;
-    /* 👇 این خط از رفرش شدن با کشیدن انگشت جلوگیری می‌کند */
+    /* جلوگیری از رفرش با کشیدن انگشت */
     overscroll-behavior-y: contain;
+    /* جلوگیری از انتخاب متن */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
   .wrap{max-width:460px; margin:0 auto; padding:28px 20px 60px;}
 
@@ -161,6 +165,15 @@
 </div>
 
 <script>
+// ===== ثبت Service Worker برای آفلاین شدن =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('Service Worker registered:', reg.scope))
+      .catch(err => console.log('Service Worker registration failed:', err));
+  });
+}
+
 const MONTHS = ["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
 const toFa = n => n.toLocaleString('fa-IR');
 
@@ -173,7 +186,6 @@ function daysInMonth(m,y){
   if(m>=7 && m<=11) return 30;
   return isEsfand30(y) ? 30 : 29;
 }
-// absolute day count relative to a shared base year (base cancels out in the subtraction)
 function absDays(y,m,d, baseYear){
   let total = 0;
   for(let yy=baseYear; yy<y; yy++) total += isEsfand30(yy) ? 366 : 365;
@@ -181,8 +193,6 @@ function absDays(y,m,d, baseYear){
   return total + d;
 }
 
-// Gregorian -> Jalali, using the same 33-year / 8-leap-day cycle as isEsfand30(),
-// so "today" and the age math always agree on which years are leap.
 function gregorianToJalali(gy, gm, gd){
   const g_d_m = [0,31,59,90,120,151,181,212,243,273,304,334];
   const gy2 = (gm > 2) ? (gy + 1) : gy;
@@ -232,8 +242,7 @@ function fillMonthSelect(sel){
 const todayGuess = getTodayJalali() || {y:1404,m:1,d:1};
 const thisYear = todayGuess.y;
 
-// year ranges
-fillSelect(document.getElementById('t_y'), 6, thisYear-4);   // a few years around today
+fillSelect(document.getElementById('t_y'), 6, thisYear-4);
 fillSelect(document.getElementById('b_y'), 120, thisYear-119);
 fillMonthSelect(document.getElementById('t_m'));
 fillMonthSelect(document.getElementById('b_m'));
@@ -253,7 +262,6 @@ function refreshDays(prefix){
   document.getElementById(p+'_m').addEventListener('change', ()=>refreshDays(p));
 });
 
-// initial fill + set today's values
 refreshDays('t'); refreshDays('b');
 document.getElementById('b_y').value = 1390;
 refreshDays('b');
@@ -280,7 +288,6 @@ document.getElementById('calcBtn').addEventListener('click', ()=>{
   }
   errEl.style.display='none';
 
-  // same borrow-based logic as the original script
   let eD = t.d - b.d;
   let eM = t.m - b.m;
   let eY = t.y - b.y;
@@ -300,14 +307,13 @@ document.getElementById('calcBtn').addEventListener('click', ()=>{
   document.getElementById('r_m').textContent = toFa(eM);
   document.getElementById('r_d').textContent = toFa(eD);
 
-  // total days lived, via shared-base absolute day count
   const base = Math.min(b.y, t.y) - 1;
   const totalDays = absDays(t.y,t.m,t.d, base) - absDays(b.y,b.m,b.d, base);
   const totalWeeks = Math.floor(totalDays/7);
   const totalHours = totalDays*24;
   const totalMinutes = totalHours*60;
-  const heartbeats = totalMinutes*80;   // average resting heart rate estimate
-  const breaths = totalMinutes*16;      // average breathing rate estimate
+  const heartbeats = totalMinutes*80;
+  const breaths = totalMinutes*16;
 
   document.getElementById('s_days').textContent = toFa(totalDays);
   document.getElementById('s_weeks').textContent = toFa(totalWeeks);
