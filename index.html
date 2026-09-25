@@ -34,9 +34,7 @@
     color:var(--ink);
     font-family:'Vazirmatn', sans-serif;
     -webkit-font-smoothing:antialiased;
-    /* جلوگیری از رفرش با کشیدن انگشت */
     overscroll-behavior-y: contain;
-    /* جلوگیری از انتخاب متن */
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
@@ -44,7 +42,6 @@
   .wrap{max-width:460px; margin:0 auto; padding:28px 20px 60px;}
 
   header{position:relative; text-align:center; padding:18px 0 30px; overflow:hidden;}
-  header svg.motif{position:absolute; inset:0; margin:auto; width:280px; height:280px; opacity:.14; z-index:0;}
   header .inner{position:relative; z-index:1;}
   header h1{font-size:2rem; font-weight:900; margin:0 0 6px; letter-spacing:.5px;}
   header p{color:var(--ink-dim); font-size:.92rem; margin:0; line-height:1.9;}
@@ -93,6 +90,16 @@
   .triplet .n{font-size:2.3rem; font-weight:900; color:var(--gold); line-height:1;}
   .triplet .l{font-size:.78rem; color:var(--ink-dim); margin-top:6px;}
 
+  .birthday-box{
+    text-align:center; padding:20px 16px; border-radius:18px;
+    background:linear-gradient(160deg, rgba(216,182,92,.16), rgba(51,183,172,.08));
+    border:1px solid rgba(216,182,92,.25); margin-bottom:18px;
+  }
+  .birthday-box .lead{color:var(--ink-dim); font-size:.82rem; margin-bottom:8px;}
+  .birthday-box .big{font-size:2.4rem; font-weight:900; color:var(--gold); line-height:1.2;}
+  .birthday-box .sub{color:var(--ink-dim); font-size:.8rem; margin-top:6px;}
+  .birthday-box .date{color:var(--turquoise); font-size:.95rem; font-weight:700; margin-top:10px;}
+
   .stats{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
   .stat{
     background:var(--surface); border:1px solid var(--border); border-radius:14px;
@@ -104,7 +111,7 @@
   footer{text-align:center; color:var(--ink-dim); font-size:.75rem; margin-top:22px; line-height:2;}
 
   @media (prefers-reduced-motion:no-preference){
-    .hero-result{animation:rise .5s ease;}
+    .hero-result, .birthday-box{animation:rise .5s ease;}
     @keyframes rise{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
   }
 </style>
@@ -151,6 +158,14 @@
         <div class="u"><div class="n" id="r_d">۰</div><div class="l">روز</div></div>
       </div>
     </div>
+
+    <div class="birthday-box" id="birthdayBox">
+      <p class="lead">🎂 تا تولد بعدی شما</p>
+      <div class="big" id="b_days_left">-</div>
+      <div class="sub">روز مانده</div>
+      <div class="date" id="b_next_date"></div>
+    </div>
+
     <div class="stats">
       <div class="stat"><div class="n" id="s_days">-</div><div class="l">روز زندگی کرده‌اید</div></div>
       <div class="stat"><div class="n" id="s_weeks">-</div><div class="l">هفته</div></div>
@@ -165,15 +180,6 @@
 </div>
 
 <script>
-// ===== ثبت Service Worker برای آفلاین شدن =====
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('Service Worker registered:', reg.scope))
-      .catch(err => console.log('Service Worker registration failed:', err));
-  });
-}
-
 const MONTHS = ["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
 const toFa = n => n.toLocaleString('fa-IR');
 
@@ -274,6 +280,26 @@ if(!getTodayJalali()){
   document.getElementById('todayHint').textContent = 'تشخیص خودکار تاریخ ممکن نشد؛ لطفاً تاریخ امروز را دستی انتخاب کنید.';
 }
 
+function getNextBirthday(birth, today){
+  let nextYear = today.y;
+  let nextMonth = birth.m;
+  let nextDay = birth.d;
+
+  if (birth.m < today.m || (birth.m === today.m && birth.d < today.d)) {
+    nextYear = today.y + 1;
+  }
+
+  if (birth.m === today.m && birth.d === today.d) {
+    return {y: today.y, m: today.m, d: today.d, isToday: true};
+  }
+
+  if (nextMonth === 12 && nextDay === 30 && !isEsfand30(nextYear)) {
+    nextDay = 29;
+  }
+
+  return {y: nextYear, m: nextMonth, d: nextDay, isToday: false};
+}
+
 document.getElementById('calcBtn').addEventListener('click', ()=>{
   const b = {y:+document.getElementById('b_y').value, m:+document.getElementById('b_m').value, d:+document.getElementById('b_d').value};
   const t = {y:+document.getElementById('t_y').value, m:+document.getElementById('t_m').value, d:+document.getElementById('t_d').value};
@@ -321,6 +347,21 @@ document.getElementById('calcBtn').addEventListener('click', ()=>{
   document.getElementById('s_minutes').textContent = toFa(totalMinutes);
   document.getElementById('s_heart').textContent = '~' + toFa(heartbeats);
   document.getElementById('s_breath').textContent = '~' + toFa(breaths);
+
+  const nextB = getNextBirthday(b, t);
+  const birthdayBox = document.getElementById('birthdayBox');
+  const bDaysLeftEl = document.getElementById('b_days_left');
+  const bNextDateEl = document.getElementById('b_next_date');
+
+  if (nextB.isToday) {
+    bDaysLeftEl.textContent = '🎉';
+    bNextDateEl.textContent = 'امروز تولدت مبارک!';
+  } else {
+    const base2 = Math.min(b.y, nextB.y) - 1;
+    const daysLeft = absDays(nextB.y, nextB.m, nextB.d, base2) - absDays(t.y, t.m, t.d, base2);
+    bDaysLeftEl.textContent = toFa(daysLeft);
+    bNextDateEl.textContent = toFa(nextB.d) + ' ' + MONTHS[nextB.m - 1] + ' ' + toFa(nextB.y);
+  }
 
   document.getElementById('result').style.display='block';
   document.getElementById('result').scrollIntoView({behavior:'smooth', block:'start'});
