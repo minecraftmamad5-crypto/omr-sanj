@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.minecraftmamad5_crypto.twa",
+        "sha256_cert_fingerprints": ["2C:EE:3C:C4:FE:D4:0F:18:D0:4F:AD:29:AC:F7:7B:EF:2B:F3:0E:0F:ED:2D:8F:BF:4B:F8:A1:D8:36:6B:B9:4A"]
+      }
+    }]
