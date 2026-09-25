@@ -181,7 +181,7 @@
 
 <script>
 const MONTHS = ["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
-const toFa = n => n.toLocaleString('fa-IR');
+const toFa = n => String(n).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
 
 function isEsfand30(y){
   const r = ((y % 33) + 33) % 33;
