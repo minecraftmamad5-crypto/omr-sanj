@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>عمرسنج</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#33b7ac">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1630; --bg2:#141F45; --surface:#182552; --surface2:#1D2C60;
+    --border: rgba(212,183,255,0.12);
+    --turquoise:#33B7AC; --turquoise-dim:#1E8C83;
+    --gold:#D8B65C;
+    --ink:#F4F1E6; --ink-dim:#9BA3C9;
+    --danger:#E2725B;
+    box-sizing:border-box;
+    padding-top: env(safe-area-inset-top,0px);
+    padding-bottom: env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top: env(safe-area-inset-top,0px);}
+  body{
+    margin:0; min-height:100%;
+    background:
+      radial-gradient(ellipse at 20% -10%, #223065 0%, transparent 55%),
+      radial-gradient(ellipse at 100% 0%, #16264f 0%, transparent 50%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Vazirmatn', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:460px; margin:0 auto; padding:28px 20px 60px;}
+
+  header{position:relative; text-align:center; padding:18px 0 30px; overflow:hidden;}
+  header svg.motif{position:absolute; inset:0; margin:auto; width:280px; height:280px; opacity:.14; z-index:0;}
+  header .inner{position:relative; z-index:1;}
+  header h1{font-size:2rem; font-weight:900; margin:0 0 6px; letter-spacing:.5px;}
+  header p{color:var(--ink-dim); font-size:.92rem; margin:0; line-height:1.9;}
+
+  .card{
+    background:linear-gradient(180deg, var(--surface), var(--surface2));
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:20px 18px;
+    margin-bottom:16px;
+  }
+  .card h2{font-size:1rem; font-weight:700; margin:0 0 4px; display:flex; align-items:center; gap:8px;}
+  .card .hint{color:var(--ink-dim); font-size:.8rem; margin:0 0 14px; line-height:1.8;}
+
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--turquoise); flex:none;}
+  .dot.gold{background:var(--gold);}
+
+  .selects{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;}
+  select{
+    width:100%; padding:12px 8px; border-radius:11px;
+    background:#0F1938; border:1px solid var(--border); color:var(--ink);
+    font-family:inherit; font-size:.95rem; text-align:center; appearance:none;
+  }
+  select:focus-visible{outline:2px solid var(--turquoise); outline-offset:2px;}
+
+  button.cta{
+    width:100%; padding:16px; border:none; border-radius:14px;
+    background:linear-gradient(90deg, var(--turquoise-dim), var(--turquoise));
+    color:#08131c; font-family:inherit; font-weight:700; font-size:1rem;
+    cursor:pointer; margin-top:6px; transition:transform .15s ease;
+  }
+  button.cta:active{transform:scale(.98);}
+  button.cta:focus-visible{outline:2px solid var(--gold); outline-offset:3px;}
+
+  .error{color:var(--danger); font-size:.85rem; margin-top:10px; display:none; line-height:1.8;}
+
+  #result{display:none;}
+  .hero-result{
+    text-align:center; padding:26px 10px 20px; border-radius:20px;
+    background:linear-gradient(160deg, rgba(51,183,172,.14), rgba(216,182,92,.08));
+    border:1px solid var(--border); margin-bottom:18px;
+  }
+  .hero-result .lead{color:var(--ink-dim); font-size:.85rem; margin-bottom:10px;}
+  .triplet{display:flex; justify-content:center; gap:18px; margin-bottom:6px;}
+  .triplet .u{text-align:center;}
+  .triplet .n{font-size:2.3rem; font-weight:900; color:var(--gold); line-height:1;}
+  .triplet .l{font-size:.78rem; color:var(--ink-dim); margin-top:6px;}
+
+  .stats{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .stat{
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:14px 12px; text-align:center;
+  }
+  .stat .n{font-size:1.15rem; font-weight:700; color:var(--turquoise); word-break:break-word;}
+  .stat .l{font-size:.76rem; color:var(--ink-dim); margin-top:4px;}
+
+  footer{text-align:center; color:var(--ink-dim); font-size:.75rem; margin-top:22px; line-height:2;}
+
+  @media (prefers-reduced-motion:no-preference){
+    .hero-result{animation:rise .5s ease;}
+    @keyframes rise{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="inner">
+      <h1>عمرسنج</h1>
+      <p>سن دقیقتان را به گاه‌شمار شمسی حساب کنید<br>و ببینید تا امروز چقدر زندگی کرده‌اید</p>
+    </div>
+  </header>
+
+  <div class="card">
+    <h2><span class="dot"></span>امروز</h2>
+    <p class="hint" id="todayHint">تاریخ گوشی شما به‌صورت خودکار به شمسی تبدیل و پر شد؛ در صورت نیاز اصلاحش کنید.</p>
+    <div class="selects">
+      <select id="t_d" aria-label="روز امروز"></select>
+      <select id="t_m" aria-label="ماه امروز"></select>
+      <select id="t_y" aria-label="سال امروز"></select>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="dot gold"></span>تاریخ تولد</h2>
+    <p class="hint">تاریخ تولد خودتان را به شمسی وارد کنید.</p>
+    <div class="selects">
+      <select id="b_d" aria-label="روز تولد"></select>
+      <select id="b_m" aria-label="ماه تولد"></select>
+      <select id="b_y" aria-label="سال تولد"></select>
+    </div>
+    <p class="error" id="err">تاریخ تولد نمی‌تواند بعد از امروز باشد.</p>
+  </div>
+
+  <button class="cta" id="calcBtn">چقدر زندگی کرده‌اید؟</button>
+
+  <div id="result">
+    <div class="hero-result">
+      <p class="lead">سن دقیق شما</p>
+      <div class="triplet">
+        <div class="u"><div class="n" id="r_y">۰</div><div class="l">سال</div></div>
+        <div class="u"><div class="n" id="r_m">۰</div><div class="l">ماه</div></div>
+        <div class="u"><div class="n" id="r_d">۰</div><div class="l">روز</div></div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="n" id="s_days">-</div><div class="l">روز زندگی کرده‌اید</div></div>
+      <div class="stat"><div class="n" id="s_weeks">-</div><div class="l">هفته</div></div>
+      <div class="stat"><div class="n" id="s_hours">-</div><div class="l">ساعت</div></div>
+      <div class="stat"><div class="n" id="s_minutes">-</div><div class="l">دقیقه</div></div>
+      <div class="stat"><div class="n" id="s_heart">-</div><div class="l">ضربان قلب تقریبی</div></div>
+      <div class="stat"><div class="n" id="s_breath">-</div><div class="l">نفس تقریبی</div></div>
+    </div>
+  </div>
+
+  <footer>محاسبه بر اساس گاه‌شمار خورشیدی (شمسی)</footer>
+</div>
+
+<script>
+const MONTHS = ["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
+const toFa = n => n.toLocaleString('fa-IR');
+
+function isEsfand30(y){
+  const r = ((y % 33) + 33) % 33;
+  return [1,5,9,13,17,22,26,30].includes(r);
+}
+function daysInMonth(m,y){
+  if(m>=1 && m<=6) return 31;
+  if(m>=7 && m<=11) return 30;
+  return isEsfand30(y) ? 30 : 29;
+}
+// absolute day count relative to a shared base year (base cancels out in the subtraction)
+function absDays(y,m,d, baseYear){
+  let total = 0;
+  for(let yy=baseYear; yy<y; yy++) total += isEsfand30(yy) ? 366 : 365;
+  for(let mm=1; mm<m; mm++) total += daysInMonth(mm,y);
+  return total + d;
+}
+
+// Gregorian -> Jalali, using the same 33-year / 8-leap-day cycle as isEsfand30(),
+// so "today" and the age math always agree on which years are leap.
+// (Browsers' built-in Intl persian calendar uses an astronomical rule that can
+// land a day off from this arithmetic one — mixing the two was the source of
+// the 1-day mismatch against other calculators.)
+function gregorianToJalali(gy, gm, gd){
+  const g_d_m = [0,31,59,90,120,151,181,212,243,273,304,334];
+  const gy2 = (gm > 2) ? (gy + 1) : gy;
+  let days = 355666 + 365*gy + Math.floor((gy2+3)/4) - Math.floor((gy2+99)/100) + Math.floor((gy2+399)/400) + gd + g_d_m[gm-1];
+  let jy = -1595 + 33 * Math.floor(days/12053);
+  days %= 12053;
+  jy += 4 * Math.floor(days/1461);
+  days %= 1461;
+  if(days > 365){
+    jy += Math.floor((days-1)/365);
+    days = (days-1) % 365;
+  }
+  let jm, jd;
+  if(days < 186){
+    jm = 1 + Math.floor(days/31);
+    jd = 1 + (days % 31);
+  } else {
+    jm = 7 + Math.floor((days-186)/30);
+    jd = 1 + ((days-186) % 30);
+  }
+  return {y:jy, m:jm, d:jd};
+}
+
+function getTodayJalali(){
+  const now = new Date();
+  return gregorianToJalali(now.getFullYear(), now.getMonth()+1, now.getDate());
+}
+
+function fillSelect(sel, count, offset=1){
+  sel.innerHTML='';
+  for(let i=0;i<count;i++){
+    const opt=document.createElement('option');
+    opt.value=i+offset;
+    opt.textContent=toFa(i+offset);
+    sel.appendChild(opt);
+  }
+}
+function fillMonthSelect(sel){
+  sel.innerHTML='';
+  MONTHS.forEach((name,i)=>{
+    const opt=document.createElement('option');
+    opt.value=i+1; opt.textContent=name;
+    sel.appendChild(opt);
+  });
+}
+
+const todayGuess = getTodayJalali() || {y:1404,m:1,d:1};
+const thisYear = todayGuess.y;
+
+// year ranges
+fillSelect(document.getElementById('t_y'), 6, thisYear-4);   // a few years around today
+fillSelect(document.getElementById('b_y'), 120, thisYear-119);
+fillMonthSelect(document.getElementById('t_m'));
+fillMonthSelect(document.getElementById('b_m'));
+
+function refreshDays(prefix){
+  const y = parseInt(document.getElementById(prefix+'_y').value);
+  const m = parseInt(document.getElementById(prefix+'_m').value);
+  const dSel = document.getElementById(prefix+'_d');
+  const prevVal = parseInt(dSel.value)||1;
+  const max = daysInMonth(m,y);
+  fillSelect(dSel, max, 1);
+  dSel.value = Math.min(prevVal, max);
+}
+
+['t','b'].forEach(p=>{
+  document.getElementById(p+'_y').addEventListener('change', ()=>refreshDays(p));
+  document.getElementById(p+'_m').addEventListener('change', ()=>refreshDays(p));
+});
+
+// initial fill + set today's values
+refreshDays('t'); refreshDays('b');
+document.getElementById('b_y').value = 1390;
+refreshDays('b');
+document.getElementById('t_y').value = todayGuess.y;
+document.getElementById('t_m').value = todayGuess.m;
+refreshDays('t');
+document.getElementById('t_d').value = todayGuess.d;
+
+if(!getTodayJalali()){
+  document.getElementById('todayHint').textContent = 'تشخیص خودکار تاریخ ممکن نشد؛ لطفاً تاریخ امروز را دستی انتخاب کنید.';
+}
+
+document.getElementById('calcBtn').addEventListener('click', ()=>{
+  const b = {y:+document.getElementById('b_y').value, m:+document.getElementById('b_m').value, d:+document.getElementById('b_d').value};
+  const t = {y:+document.getElementById('t_y').value, m:+document.getElementById('t_m').value, d:+document.getElementById('t_d').value};
+  const errEl = document.getElementById('err');
+
+  const num1 = b.y*10000 + b.m*100 + b.d;
+  const num2 = t.y*10000 + t.m*100 + t.d;
+  if(num1 > num2){
+    errEl.style.display='block';
+    document.getElementById('result').style.display='none';
+    return;
+  }
+  errEl.style.display='none';
+
+  // same borrow-based logic as the original script
+  let eD = t.d - b.d;
+  let eM = t.m - b.m;
+  let eY = t.y - b.y;
+
+  if(eD < 0){
+    eM -= 1;
+    let prevMonth = t.m - 1, prevMonthYear = t.y;
+    if(t.m === 1){ prevMonth = 12; prevMonthYear = t.y - 1; }
+    eD += daysInMonth(prevMonth, prevMonthYear);
+  }
+  if(eM < 0){
+    eY -= 1;
+    eM += 12;
+  }
+
+  document.getElementById('r_y').textContent = toFa(eY);
+  document.getElementById('r_m').textContent = toFa(eM);
+  document.getElementById('r_d').textContent = toFa(eD);
+
+  // total days lived, via shared-base absolute day count
+  const base = Math.min(b.y, t.y) - 1;
+  const totalDays = absDays(t.y,t.m,t.d, base) - absDays(b.y,b.m,b.d, base);
+  const totalWeeks = Math.floor(totalDays/7);
+  const totalHours = totalDays*24;
+  const totalMinutes = totalHours*60;
+  const heartbeats = totalMinutes*80;   // average resting heart rate estimate
+  const breaths = totalMinutes*16;      // average breathing rate estimate
+
+  document.getElementById('s_days').textContent = toFa(totalDays);
+  document.getElementById('s_weeks').textContent = toFa(totalWeeks);
+  document.getElementById('s_hours').textContent = toFa(totalHours);
+  document.getElementById('s_minutes').textContent = toFa(totalMinutes);
+  document.getElementById('s_heart').textContent = '~' + toFa(heartbeats);
+  document.getElementById('s_breath').textContent = '~' + toFa(breaths);
+
+  document.getElementById('result').style.display='block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth', block:'start'});
+});
+</script>
+</body>
+</html>
